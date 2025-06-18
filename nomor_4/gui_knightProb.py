@@ -1,10 +1,31 @@
 import tkinter as tk
 
-def isMovevalid(board, row, col):
+def isMoveValid(board, row, col):
     if row >= 0 and row < len(board) and col >= 0 and col < len(board) and board[row][col] == 0:
         return True
     else:
         return False
+
+
+def knightTour(n, posisiX, posisiY, tree_size):
+    
+    board = []
+    for x in range(0, n):
+        row = []
+        for y in range(0, n):
+            row.append(0)
+        board.append(row)
+
+    m = []
+    count = [0]
+    step = [1]
+
+    board[posisiX][posisiY] = step[0]
+
+    if knightTourAlg(board, posisiX, posisiY, step, m, count):
+        show_result(board, m, tree_size)
+    else:
+        show_result([[0]])
 
 def knightTourAlg(board, row, col, step, m, count):
 
@@ -18,7 +39,7 @@ def knightTourAlg(board, row, col, step, m, count):
         nextX = row + xWalk[i]
         nextY = col + yWalk[i]
 
-        if isMovevalid(board, nextX, nextY):
+        if isMoveValid(board, nextX, nextY):
             validMoves.append([nextX, nextY])
     
 
@@ -49,29 +70,6 @@ def knightTourAlg(board, row, col, step, m, count):
         m.pop()
     return False
 
-def knightTour(n, posisiX, posisiY):
-    
-    board = []
-    for x in range(0, n):
-        row = []
-        for y in range(0, n):
-            row.append(0)
-        board.append(row)
-
-    m = []
-    tree_size = [1]
-    count = [0]
-    step = [1]
-
-    board[posisiX][posisiY] = step[0]
-
-    if knightTourAlg(board, posisiX, posisiY, step, m, count):
-        show_result(board, m)
-    else:
-        show_result([[0]])
-
-    
-
 def est_tree_size(m):
     total = [1]
     product = 1
@@ -80,55 +78,8 @@ def est_tree_size(m):
         total.append(product)
     return total
 
-# Initializes GUI python
-def intro():
-    root = tk.Tk()
-    root.title("Knight Tour Problem")
 
-    label = tk.Label(root, text="Welcome to knight tour program!")
-    label.pack(pady=10)
-
-    # Section for height & width input
-    frame1 = tk.Frame(root)
-    frame1.pack(padx=10, pady=10)
-
-    label = tk.Label(frame1, text="Enter the width and height for the board :")
-    label.pack(side=tk.LEFT)
-    ukuran = tk.Entry(frame1)
-    ukuran.pack(side=tk.LEFT)
-
-    # Section for X-axis input
-    frame2 = tk.Frame(root)
-    frame2.pack(padx=10, pady=10)
-    
-    label = tk.Label(frame2, text="Enter the X-axis of start point : ")
-    label.pack(side=tk.LEFT)
-    posisiX = tk.Entry(frame2)
-    posisiX.pack(side=tk.LEFT)
-
-    # Section for Y-axis input
-    frame3 = tk.Frame(root)
-    frame3.pack(padx=10, pady=10)
-
-    label = tk.Label(frame3, text="Enter the Y-axis of start point : ")
-    label.pack(side=tk.LEFT)
-    posisiY = tk.Entry(frame3)
-    posisiY.pack(side=tk.LEFT)
-
-    def klik():
-        uk_papan = ukuran.get()
-        X = int(posisiX.get())
-        Y = int(posisiY.get())
-        if uk_papan.isdigit() and int(uk_papan) > 0:
-            root.destroy()
-            knightTour(int(uk_papan), X, Y)
-    
-    button = tk.Button(root, text="Click to start program", command=klik)
-    button.pack(pady=15)
-
-    root.mainloop()
-
-def show_result(board, m):
+def show_result(board, m, tree_size):
     n = len(board)
     root = tk.Tk()
     root.title("Knight Tour Result")
@@ -190,6 +141,117 @@ def show_result(board, m):
 
     est_tree = tk.Label(frame2, text=f"The Est. Tree Size = {sum(size):,}")
     est_tree.pack()
+
+    tree_size.append(sum(size))
+    
+    root.mainloop()
+
+
+def show_avg_tree_size(tree_size):
+    root = tk.Tk()
+    root.title("The average tree size")
+    root.geometry('500x300')
+
+    total = 0
+    count = 1
+    for i in tree_size:
+        est_tree = tk.Label(root, text=f"Est. Tree size of tour {count} => {i:,}")
+        est_tree.pack(pady=5)
+        count += 1
+        total += i
+    
+    avg = total/len(tree_size)
+    
+    frame2 = tk.Frame(root)
+    frame2.pack(pady=10)
+
+    est_tree = tk.Label(frame2, text=f"The Average of Est. Tree Size = {avg:,}")
+    est_tree.pack()
+
+    root.mainloop()
+
+# Initializes GUI python
+def intro():
+    root = tk.Tk()
+    root.title("Knight Tour Problem")
+    
+    label = tk.Label(root, text="Welcome to knight tour program!")
+    label.pack(pady=10)
+
+    label = tk.Label(root, text="How many times you want to do a tour?")
+    label.pack(pady=10)
+
+    # Frame for input total tour
+    frame1 = tk.Frame(root)
+    frame1.pack(padx=10, pady=10)
+
+    label = tk.Label(frame1, text="Enter tour :")
+    label.pack(side=tk.LEFT)
+    jumlah = tk.Entry(frame1)
+    jumlah.pack(side=tk.LEFT)
+
+    tree_size = []
+
+    def klik():
+        tour = jumlah.get()
+        if tour.isdigit() and int(tour) > 0:
+            root.destroy()
+            i = 0
+            while i != int(tour):
+                intro_2(tree_size)
+                i += 1
+            
+            show_avg_tree_size(tree_size)
+    
+    button = tk.Button(root, text="Click to start program", command=klik)
+    button.pack(pady=15)
+
+    root.mainloop()
+
+def intro_2(tree_size):
+    root = tk.Tk()
+    root.title("Knight Tour Problem")
+
+    label = tk.Label(root, text="Welcome to knight tour program!")
+    label.pack(pady=10)
+
+    # Section for height & width input
+    frame1 = tk.Frame(root)
+    frame1.pack(padx=10, pady=10)
+
+    label = tk.Label(frame1, text="Enter the width and height for the board :")
+    label.pack(side=tk.LEFT)
+    ukuran = tk.Entry(frame1)
+    ukuran.pack(side=tk.LEFT)
+
+    # Section for X-axis input
+    frame2 = tk.Frame(root)
+    frame2.pack(padx=10, pady=10)
+    
+    label = tk.Label(frame2, text="Enter the X-axis of start point : ")
+    label.pack(side=tk.LEFT)
+    posisiX = tk.Entry(frame2)
+    posisiX.pack(side=tk.LEFT)
+
+    # Section for Y-axis input
+    frame3 = tk.Frame(root)
+    frame3.pack(padx=10, pady=10)
+
+    label = tk.Label(frame3, text="Enter the Y-axis of start point : ")
+    label.pack(side=tk.LEFT)
+    posisiY = tk.Entry(frame3)
+    posisiY.pack(side=tk.LEFT)
+
+    def klik():
+        uk_papan = ukuran.get()
+        X = int(posisiX.get())
+        Y = int(posisiY.get())
+        if uk_papan.isdigit() and int(uk_papan) > 0:
+            # root.destroy()
+            knightTour(int(uk_papan), X, Y, tree_size)
+    
+    button = tk.Button(root, text="Click to start program", command=klik)
+    button.pack(pady=15)
 
     root.mainloop()
 
