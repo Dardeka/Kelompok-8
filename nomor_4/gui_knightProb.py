@@ -7,7 +7,7 @@ def isMoveValid(board, row, col):
         return False
 
 
-def knightTour(n, posisiX, posisiY, tree_size):
+def knightTour(n, posisiX, posisiY, tree_size, max_solution):
     
     board = []
     for x in range(0, n):
@@ -16,22 +16,22 @@ def knightTour(n, posisiX, posisiY, tree_size):
             row.append(0)
         board.append(row)
 
-    m = []
     count = [0]
     step = [1]
+    solutions = []
+    m_sol = []
 
     board[posisiX][posisiY] = step[0]
 
-    if knightTourAlg(board, posisiX, posisiY, step, m, count):
-        show_result(board, m, tree_size)
-    else:
-        show_result([[0]])
+    knightTourAlg(board, posisiX, posisiY, step, [], count, solutions, max_solution, m_sol)
 
-def knightTourAlg(board, row, col, step, m, count):
+    for i in range(0, len(solutions)):
+        show_result(solutions[i], m_sol[i], tree_size)
+
+def knightTourAlg(board, row, col, step, m, count, solutions, max_solution, m_sol):
 
     xWalk = [2, 1, -1, -2, -2, -1, 1, 2]
     yWalk = [1, 2, 2, 1, -1, -2, -2, -1]
-
 
     # Count the child of the root
     validMoves = []
@@ -41,17 +41,17 @@ def knightTourAlg(board, row, col, step, m, count):
 
         if isMoveValid(board, nextX, nextY):
             validMoves.append([nextX, nextY])
-    
 
     if step[0] == (len(board)*len(board)):
-        row = 0
-        print("Row")
-        for i in board:
-            print(f"{row}\t{i}")
-            row += 1
-        print("\nThis is the m list")
-        print(m)
-        return True
+        sol = [row[:] for row in board]
+        solutions.append(sol)
+        m_sol.append(m[:])
+
+        # print(f"\nSolusi ke-{len(solutions)}:")
+        # for i in range(0, len(sol)):
+        #     print(sol[i])
+
+        return len(solutions) >= max_solution
 
     print(f"Visiting step {step} at position ({row}, {col})")
 
@@ -62,7 +62,7 @@ def knightTourAlg(board, row, col, step, m, count):
 
         m.append(len(validMoves))
 
-        if knightTourAlg(board, nextX, nextY, step, m, count):
+        if knightTourAlg(board, nextX, nextY, step, m, count, solutions, max_solution, m_sol):
             return True
         
         step[0] -= 1
@@ -196,11 +196,7 @@ def intro():
         tour = jumlah.get()
         if tour.isdigit() and int(tour) > 0:
             root.destroy()
-            i = 0
-            while i != int(tour):
-                intro_2(tree_size)
-                i += 1
-            
+            intro_2(int(tour), tree_size)
             show_avg_tree_size(tree_size)
     
     button = tk.Button(root, text="Click to start program", command=klik)
@@ -208,7 +204,7 @@ def intro():
 
     root.mainloop()
 
-def intro_2(tree_size):
+def intro_2(tour, tree_size):
     root = tk.Tk()
     root.title("Knight Tour Problem")
 
@@ -248,7 +244,7 @@ def intro_2(tree_size):
         Y = int(posisiY.get())
         if uk_papan.isdigit() and int(uk_papan) > 0:
             # root.destroy()
-            knightTour(int(uk_papan), X, Y, tree_size)
+            knightTour(int(uk_papan), X, Y, tree_size, tour)
     
     button = tk.Button(root, text="Click to start program", command=klik)
     button.pack(pady=15)
