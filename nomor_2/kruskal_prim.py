@@ -64,6 +64,7 @@ class Graph:
                 self.union(parent, rank, root_u, root_v)
                 result_edges.append([u, v, w])
                 total_weight += w
+                
                 steps.append({
                     "title": "Algoritma Kruskal",
                     "sub_title": f"Edge ({u}, {v}) ditambahkan ke MST",
@@ -79,6 +80,13 @@ class Graph:
                     "considered_edge": None,
                     "total_weight": total_weight
                 })
+        
+        print("\n=== HASIL KRUSKAL ===")
+        print("Edge dalam MST:")
+        for u, v, w in result_edges:
+            print(f"  ({u}, {v}) = {w}")
+        print(f"Total bobot MST: {total_weight}")
+        print("=" * 25)
         
         steps.append({
             "title": "Hasil MST dengan Algoritma Kruskal",
@@ -120,7 +128,7 @@ class Graph:
 
         while min_heap and len(mst_set) < len(self.vertices_set):
             w, u, v = heapq.heappop(min_heap)
-
+            
             steps.append({
                 "title": "Algoritma Prim",
                 "sub_title": f"Mempertimbangkan edge ({u}, {v}) dengan bobot {w}",
@@ -157,6 +165,13 @@ class Graph:
             for to, weight in adj[v]:
                 if to not in mst_set:
                     heapq.heappush(min_heap, (weight, v, to))
+        
+        print(f"\n=== HASIL PRIM (dari vertex {start_vertex}) ===")
+        print("Edge dalam MST:")
+        for u, v, w in mst_edges:
+            print(f"  ({u}, {v}) = {w}")
+        print(f"Total bobot MST: {total_weight}")
+        print("=" * 25)
         
         steps.append({
             "title": "Hasil MST dengan Algoritma Prim",
@@ -282,7 +297,7 @@ class MST_Visualizer:
 
         # Set title, sub title dan langkahnya
         self.ax.set_title(f"{step['title']}\n{step.get('sub_title', '')}", pad=15)
-        self.ax.text(0.95, 0.05, f"Langkah {self.current_step + 1}/{len(steps)}",
+        self.ax.text(0.95, 0.05, f"Step {self.current_step + 1}/{len(steps)}",
                      transform=self.ax.transAxes, ha='right', va='bottom', fontsize=9, color='gray')
 
         # Update button text
@@ -296,8 +311,11 @@ def create_graph_from_input():
     vertices_input = input().split()
     for v in vertices_input:
         g.vertices_set.add(v.upper())
+    
+    print(f"{len(g.vertices_set)} vertices ditambahkan: {sorted(g.vertices_set)}")
 
     print("\nMasukkan edge dan beratnya (format: u v w), ketik 'done' jika selesai:")
+    edge_count = 0
     while True:
         edge_input = input("Edge: ")
         if edge_input.lower() == 'done':
@@ -312,6 +330,8 @@ def create_graph_from_input():
         except ValueError:
             print("Berat sisi (w) harus berupa angka! (contoh: A B 5)")
             continue
+    
+    print(f"\nTotal {edge_count} edges berhasil ditambahkan")
     return g
 
 def main():    
@@ -348,8 +368,12 @@ def main():
         
         if choice == '1':
             g = g_default
+            print("\nMenggunakan graf default dari soal")
+            print(f"Graf memiliki {len(g.vertices_set)} vertices dan {len(g.graph)} edges")
         elif choice == '2':
+            print("\nMembuat graf baru...")
             g = create_graph_from_input()
+            print(f"\nGraf berhasil dibuat dengan {len(g.vertices_set)} vertices dan {len(g.graph)} edges")
         elif choice == '3':
             break
         else:
@@ -363,15 +387,24 @@ def main():
 
         start_vertex_input = None
         if g.vertices_set: 
+            print(f"\nVertices tersedia: {sorted(g.vertices_set)}")
             start_vertex_input = input("Masukkan start verteks untuk Prim's MST: ").upper()
             if not start_vertex_input: 
                 start_vertex_input = next(iter(g.vertices_set)) 
                 print(f"Vertex awal Prim diatur secara otomatis ke: {start_vertex_input}")
             elif start_vertex_input not in g.vertices_set:
-                print(f"Vertex '{start_vertex_input}' tidak ditemukan dalam graf. Menggunakan verteks '{next(iter(g.vertices_set))}' sebagai awal untuk Prim.")
+                print(f"Vertex '{start_vertex_input}' tidak ditemukan dalam graf.")
                 start_vertex_input = next(iter(g.vertices_set))
+                print(f"Menggunakan verteks '{start_vertex_input}' sebagai awal untuk Prim.")
+            else:
+                print(f"Vertex awal Prim: {start_vertex_input}")
 
-        visualizer = MST_Visualizer(g, initial_prim_vertex=start_vertex_input) 
+        visualizer = MST_Visualizer(g, initial_prim_vertex=start_vertex_input)
+        
+        print(f"\nVisualisasi interaktif dimulai!")
+        print(f"Gunakan tombol 'Previous' dan 'Next' untuk navigasi langkah")
+        print(f"Gunakan tombol 'Switch Algoritma' untuk beralih antara Kruskal dan Prim")
+        print(f"Tutup jendela visualisasi untuk kembali ke menu\n") 
 
         plt.ioff() 
         plt.show()
